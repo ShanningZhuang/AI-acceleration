@@ -1,5 +1,6 @@
 import torch
 from transformers import AutoModelForImageTextToText, AutoProcessor, GenerationConfig
+from drivevlms.models.phi4_bjxx import Phi4MMProcessor, Phi4MMForCausalLM
 from peft import PeftModel
 import argparse
 import torch
@@ -15,13 +16,12 @@ import json
 def main(args):
 
     # Load model and processor
-    processor = AutoProcessor.from_pretrained("google/paligemma-3b-pt-224")
-    model = AutoModelForImageTextToText.from_pretrained("google/paligemma-3b-pt-224")
-    # model = PeftModel.from_pretrained(model, '/data2/private-data/zhangn/pretrained/paligemma/FULL-2025-04-29_21-11/final_model')
-    model = PeftModel.from_pretrained(model, '/data2/private-data/zhangn/pretrained/paligemma/FULL-2025-03-15_21-49/final_model')
-    model = model.merge_and_unload()
+    processor = Phi4MMProcessor.from_pretrained("microsoft/Phi-4-multimodal-instruct",  revision="607bf62a754018e31fb4b55abbc7d72cce4ffee5")
+    model = Phi4MMForCausalLM.from_pretrained('phi-4-multimodal-finetuned',
+    torch_dtype=torch.float16, 
+    _attn_implementation='sdpa')
     model.to(args.device)
-    generation_config = GenerationConfig.from_pretrained("google/paligemma-3b-pt-224")
+    generation_config = GenerationConfig.from_pretrained("microsoft/Phi-4-multimodal-instruct")
 
     # prepare dataset
     collate_fn = build_collate_fn(args.collate_fn)
@@ -31,7 +31,7 @@ def main(args):
         dataset,
         batch_size=1,
         collate_fn=val_collate_fn,
-        num_workers=0,
+        num_workers=16,
         shuffle=False,
     )
 
@@ -55,6 +55,7 @@ def main(args):
         for batch in tqdm(dataloader):
             cnt += 1
             inputs, question, ids = batch
+            breakpoint()
             results = infer(inputs.to(args.device))
             data_dict.append(
                 {'id': flatten(ids), 'question': flatten(question), 'answer': flatten(results)}
@@ -66,7 +67,7 @@ def main(args):
 def parse_args():
     parser = argparse.ArgumentParser(description='DriveLM Inference')
     parser.add_argument("--data", type=str, default="data/DriveLM_nuScenes/split/val")
-    parser.add_argument("--collate_fn", type=str, default="drivelm_nus_paligemma_collate_fn_val")
+    parser.add_argument("--collate_fn", type=str, default="drivelm_nus_phi4_collate_fn_val")
     parser.add_argument("--output", type=str, default="data/DriveLM_nuScenes/refs/infer_results_21-49.json")
     parser.add_argument("--device", default="cuda", help="Device to run inference")
     args = parser.parse_args()

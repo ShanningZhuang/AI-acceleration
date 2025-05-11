@@ -128,7 +128,7 @@ def drivelm_nus_phi4_collate_fn(examples, processor, dtype):
     )
 
 @register_collate_fn
-def drivelm_nus_phi4_collate_fn_val(examples, processor, device):
+def drivelm_nus_phi4_collate_fn_val(examples, processor, dtype):
     ids = [example["id"] for example in examples]
     questions = [example["conversations"][0]['value'] for example in examples]
     prompts = [format_prompt_phi4(example["conversations"][0]['value']) for example in examples]

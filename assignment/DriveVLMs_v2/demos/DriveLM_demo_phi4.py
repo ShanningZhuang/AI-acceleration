@@ -16,7 +16,7 @@ _imgs_filename = [
 # Load model and processor
 processor = Phi4MMProcessor.from_pretrained("microsoft/Phi-4-multimodal-instruct",  revision="607bf62a754018e31fb4b55abbc7d72cce4ffee5")
 model = Phi4MMForCausalLM.from_pretrained(
-    'drivelm-project/phi-4-multimodal-finetuned',
+    'phi-4-multimodal-finetuned',
     torch_dtype=torch.float16, 
     _attn_implementation='sdpa'
 )
