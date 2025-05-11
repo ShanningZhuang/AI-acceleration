@@ -1,1 +1,11 @@
 .DS_Store
+assignment/DriveVLMs_v2/data
+assignment/drivevlms
+__pycache__/
+*egg-info/
+build/
+dist/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
