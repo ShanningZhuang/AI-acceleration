@@ -9,8 +9,11 @@ def format_prompt(instruction, input=None):
             "Write a response that appropriately completes the request.\n\n"
             "### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:"
         ),
+        # "prompt_no_input": (
+        #     "You are an autonomous driving labeler. You have access to six camera images (front, front-right, front-left, back, back-right, back-left).\n{instruction}"
+        # ),
         "prompt_no_input": (
-            "You are an autonomous driving labeler. You have access to six camera images (front, front-right, front-left, back, back-right, back-left).\n{instruction}"
+            "You are an autonomous driving labeler. You have access to six camera images (front<image>, front-right<image>, front-left<image>, back<image>, back-right<image>, back-left<image>).\n{instruction}"
         ),
     }
     if input is None:
@@ -43,7 +46,8 @@ def drivelm_nus_paligemma_collate_fn_val(examples, processor, dtype):
     images = []
     for example in examples:
         image = [Image.open(example["image_paths"][i]).convert("RGB") for i in range(6)]
-        images.append(image)
+        images = image
+        # images.append(image)
 
     tokens = processor(
         text=prompts, images=images, return_tensors="pt", padding="longest"

@@ -18,7 +18,7 @@ def main(args):
     processor = AutoProcessor.from_pretrained("google/paligemma-3b-pt-224")
     model = AutoModelForImageTextToText.from_pretrained("google/paligemma-3b-pt-224")
     # model = PeftModel.from_pretrained(model, '/data2/private-data/zhangn/pretrained/paligemma/FULL-2025-04-29_21-11/final_model')
-    model = PeftModel.from_pretrained(model, '/data2/private-data/zhangn/pretrained/paligemma/FULL-2025-03-15_21-49/final_model')
+    model = PeftModel.from_pretrained(model, 'drivelm-project/paligemma-finetuned-lora')
     model = model.merge_and_unload()
     model.to(args.device)
     generation_config = GenerationConfig.from_pretrained("google/paligemma-3b-pt-224")

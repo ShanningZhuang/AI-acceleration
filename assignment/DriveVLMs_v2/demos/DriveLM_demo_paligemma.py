@@ -14,21 +14,21 @@ from torchvision import transforms
 from peft import PeftModel
 
 _imgs_filename = [
-            "/data2/public-data/DriveLM-nuScenes/val_data/CAM_FRONT/n008-2018-09-18-14-35-12-0400__CAM_FRONT__1537295990612404.jpg",
-            "/data2/public-data/DriveLM-nuScenes/val_data/CAM_FRONT_LEFT/n008-2018-09-18-14-35-12-0400__CAM_FRONT_LEFT__1537295990604799.jpg",
-            "/data2/public-data/DriveLM-nuScenes/val_data/CAM_FRONT_RIGHT/n008-2018-09-18-14-35-12-0400__CAM_FRONT_RIGHT__1537295990620482.jpg",
-            "/data2/public-data/DriveLM-nuScenes/val_data/CAM_BACK/n008-2018-09-18-14-35-12-0400__CAM_BACK__1537295990637558.jpg",
-            "/data2/public-data/DriveLM-nuScenes/val_data/CAM_BACK_LEFT/n008-2018-09-18-14-35-12-0400__CAM_BACK_LEFT__1537295990647405.jpg",
-            "/data2/public-data/DriveLM-nuScenes/val_data/CAM_BACK_RIGHT/n008-2018-09-18-14-35-12-0400__CAM_BACK_RIGHT__1537295990628113.jpg"
+            "./demos/samples/n008-2018-09-18-14-35-12-0400__CAM_FRONT__1537295990612404.jpg",
+            "./demos/samples/n008-2018-09-18-14-35-12-0400__CAM_FRONT_LEFT__1537295990604799.jpg",
+            "./demos/samples/n008-2018-09-18-14-35-12-0400__CAM_FRONT_RIGHT__1537295990620482.jpg",
+            "./demos/samples/n008-2018-09-18-14-35-12-0400__CAM_BACK__1537295990637558.jpg",
+            "./demos/samples/n008-2018-09-18-14-35-12-0400__CAM_BACK_LEFT__1537295990647405.jpg",
+            "./demos/samples/n008-2018-09-18-14-35-12-0400__CAM_BACK_RIGHT__1537295990628113.jpg"
         ]
 
-# processor = AutoProcessor.from_pretrained("google/paligemma-3b-pt-224")
-# model = AutoModelForImageTextToText.from_pretrained("google/paligemma-3b-pt-224")
-processor = AutoProcessor.from_pretrained("lykong/paligemma-finetuned")
-model = AutoModelForImageTextToText.from_pretrained("lykong/paligemma-finetuned")
-# model = PeftModel.from_pretrained(model, '/data2/private-data/zhangn/pretrained/paligemma/FULL-2025-04-11_11-39/epoch-1')
+processor = AutoProcessor.from_pretrained("google/paligemma-3b-pt-224")
+model = AutoModelForImageTextToText.from_pretrained("google/paligemma-3b-pt-224")
+# processor = AutoProcessor.from_pretrained("lykong/paligemma-finetuned")
+# model = AutoModelForImageTextToText.from_pretrained("lykong/paligemma-finetuned")
+model = PeftModel.from_pretrained(model, 'cutebananas/paligemma-finetuned-lora')
 # model = PeftModel.from_pretrained(model, '/data2/private-data/zhangn/pretrained/paligemma/FULL-2025-03-15_21-49/final_model')
-# model = model.merge_and_unload()
+model = model.merge_and_unload()
 model.to('cuda')
 
 import cv2
@@ -115,23 +115,23 @@ def infer(inputs):
 def format_prompt(instruction, input=None):
 
     PROMPT_DICT = {
-        "prompt_input": (
-            "Below is an instruction that describes a task, paired with an input that provides further context. "
-            "Write a response that appropriately completes the request.\n\n"
-            "### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:"
-        ),
+        # "prompt_input": (
+        #     "Below is an instruction that describes a task, paired with an input that provides further context. "
+        #     "Write a response that appropriately completes the request.\n\n"
+        #     "### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:"
+        # ),
+        # # "prompt_no_input": (
+        # #     "Below is an instruction that describes a task. "
+        # #     "Write a response that appropriately completes the request.\n\n"
+        # #     "### Instruction:\n{instruction}\n\n### Response:"
+        # # ),
         # "prompt_no_input": (
-        #     "Below is an instruction that describes a task. "
+        #     "Based on image inputs from the vehicle's six surround-view cameras(CAM_FRONT,CAM_FRONT_LEFT,CAM_FRONT_RIGHT,CAM_BACK,CAM_BACK_LEFT,CAM_BACK_RIGHT). "
         #     "Write a response that appropriately completes the request.\n\n"
         #     "### Instruction:\n{instruction}\n\n### Response:"
         # ),
         "prompt_no_input": (
-            "Based on image inputs from the vehicle's six surround-view cameras(CAM_FRONT,CAM_FRONT_LEFT,CAM_FRONT_RIGHT,CAM_BACK,CAM_BACK_LEFT,CAM_BACK_RIGHT). "
-            "Write a response that appropriately completes the request.\n\n"
-            "### Instruction:\n{instruction}\n\n### Response:"
-        # ),
-        "prompt_no_input": (
-            "answer en You are an   driving labeler. You have access to six camera images (front<image_00>, front-right<image>, front-left<image>, back<image>, back-right<image>, back-left<image>)"
+            "answer en You are an   driving labeler. You have access to six camera images (front<image>, front-right<image>, front-left<image>, back<image>, back-right<image>, back-left<image>)"
             "Write a response that appropriately completes the request.\n\n"
             "### Instruction:\n{instruction}\n\n### Response:"
         ),
@@ -143,6 +143,7 @@ def format_prompt(instruction, input=None):
 
 
 def tokenize(texts, images, processor, device='cuda'):
+    # print(texts)
     return processor(
         text=texts, images=images, return_tensors="pt", padding="longest"
     ).to(device)
@@ -162,6 +163,8 @@ def main(args):
         images = [Image.open(cam).convert("RGB") for cam in _imgs_filename]
 
         reason_inputs = tokenize([prompt], images, processor, args.device)
+        print(reason_inputs)
+        breakpoint()
         reason_results = infer(reason_inputs)
         print(reason_results)
 
