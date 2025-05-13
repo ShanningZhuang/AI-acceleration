@@ -1,0 +1,22 @@
+{
+    "baseline": {
+        "steps": 5,
+        "total_time": 8.869921207427979,
+        "total_tokens": 214,
+        "accuracy": 89.7,
+        "latency": 2128.781089782715
+    },
+    "optimized": {
+        "steps": 2,
+        "total_time": 1.952979326248169,
+        "total_tokens": 21,
+        "accuracy": 92.5,
+        "latency": 1171.7875957489011
+    },
+    "improvements": {
+        "time": 77.98199915673798,
+        "tokens": 90.18691588785047,
+        "accuracy": 2.799999999999997,
+        "latency": 44.95499789184495
+    }
+}
