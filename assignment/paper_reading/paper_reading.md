@@ -1,7 +1,5 @@
 # Paper Reading and Summary
 
-This file contains summaries of various papers in the field of computer vision and deep learning.
-
 ## ImageNet Classification with Deep Convolutional Neural Networks (AlexNet)
 
 ### Motivation:
